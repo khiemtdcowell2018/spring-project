@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM 
+	"https://raw.githubusercontent.com/liferay/liferay-portal/6.2.x/portal-impl/src/META-INF/log4j.dtd">
+<log4j:configuration
+	xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<!-- Write log to console -->
+	<appender name="logToConsoleAppender"
+		class="org.apache.log4j.ConsoleAppender">
+		<param name="Threshold" value="INFO"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c(%L) : %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="logToFileAppender"
+		class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="Threshold" value="ERROR"/>
+		<param name="maxFileSize" value="100KB"/>
+		<param name="maxBackupIndex" value="10"/>
+		<!-- For tomcat server log -->
+		<param name="file" value="${catalina.home}/logs/application.log"/>
+		<param name="datePattern" value="'.'yyyy-MM-dd"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern"
+				value="%d{yyyy-MM-dd HH:mm:ss} %-5p %c(%L) : %m%n" />
+		</layout>
+	</appender>
+
+	<root>
+		<appender-ref ref="logToConsoleAppender"/>
+		<appender-ref ref="logToFileAppender" />
+	</root>
+</log4j:configuration>
