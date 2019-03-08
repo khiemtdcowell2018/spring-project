@@ -24,8 +24,8 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserDao userDao;
 
-	//@Autowired
-	//private PasswordEncoder passwordEncoder;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	@Override
 	public List<MstUser> getAllUsers(boolean isGetRoles) {
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void addNewUser(MstUser mstUser) {
-		//mstUser.setLoginPassword(passwordEncoder.encode(mstUser.getLoginPassword()));
+		mstUser.setLoginPassword(passwordEncoder.encode(mstUser.getLoginPassword()));
 		userDao.insert(mstUser);
 	}
 
@@ -63,9 +63,9 @@ public class UserServiceImpl implements UserService {
 	public void updateUser(MstUser mstUser) {
 		MstUser currentUser = userDao.findById(mstUser.getUserId());
 		if (currentUser != null) {
-			//if (!currentUser.getLoginPassword().equals(passwordEncoder.encode(mstUser.getLoginPassword()))) {
-				//currentUser.setLoginPassword(passwordEncoder.encode(mstUser.getLoginPassword()));
-			//}
+			if (!currentUser.getLoginPassword().equals(passwordEncoder.encode(mstUser.getLoginPassword()))) {
+				currentUser.setLoginPassword(passwordEncoder.encode(mstUser.getLoginPassword()));
+			}
 			currentUser.setNameMei(mstUser.getNameMei());
 			currentUser.setNameSei(mstUser.getNameMei());
 			currentUser.setMailAddress(mstUser.getMailAddress());
