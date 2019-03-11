@@ -21,6 +21,9 @@
 					<td><input type="password" name="loginPassword" id="loginPassword" placeholder="Input your password" /></td>
 				</tr>
 				<tr>
+					<td colspan="2"><label><input type="checkbox" id="setRemember" name="setRemember"> Remember Me</label></td>
+				</tr>
+				<tr>
 					<td>
 						<button type="submit">Submit</button>
 					</td>

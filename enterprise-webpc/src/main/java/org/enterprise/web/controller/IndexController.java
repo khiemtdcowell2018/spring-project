@@ -18,7 +18,7 @@ public class IndexController {
 	UserService userService;
 	private Logger log = Logger.getLogger(IndexController.class);
 
-	@RequestMapping(value = { "/", "" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "/", "", "/home" }, method = RequestMethod.GET)
 	public String index(ModelMap model) {
 		try {
 			model.addAttribute("users", userService.getAllUsers(false));

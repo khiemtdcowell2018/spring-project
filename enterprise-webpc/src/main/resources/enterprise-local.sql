@@ -45,3 +45,11 @@ INSERT INTO KENRI(USER_ID, ROLE_ID) VALUES (2,1);
 INSERT INTO KENRI(USER_ID, ROLE_ID) VALUES (2,2);
 INSERT INTO KENRI(USER_ID, ROLE_ID) VALUES (3,1);
 INSERT INTO KENRI(USER_ID, ROLE_ID) VALUES (4,1);
+
+Create table remember_login(
+	SERIES_NUMBER varchar(64) not null,
+    LOGIN_ID varchar(50) not null,
+    TOKEN_CODE varchar(64) not null,
+    LAST_USED timestamp not null,
+    Constraint PK_remember_login primary key(SERIES_NUMBER)
+)

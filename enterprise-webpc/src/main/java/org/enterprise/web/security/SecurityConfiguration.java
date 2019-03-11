@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,6 +14,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 /**
  * 
@@ -25,24 +29,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Autowired
 	@Qualifier("databaseAuthenticationService")
 	UserDetailsService userDetailsService;
-	
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
+	@Autowired
+	PersistentTokenRepository tokenRepository;
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests()
-				.antMatchers("/").access("hasRole('SHOUKAISHA') or hasRole('KANRISHA')")
-			.and()
-				.formLogin().loginPage("/login").loginProcessingUrl("/login").usernameParameter("loginId").passwordParameter("password")
-			.and()
-				.csrf()
-			.and()
-				.exceptionHandling().accessDeniedPage("/access-denied");
+		http.authorizeRequests().antMatchers("/", "/home").access("hasRole('SHOUKAISHA') or hasRole('KANRISHA')").and()
+				.formLogin().loginPage("/login").loginProcessingUrl("/login").usernameParameter("loginId")
+				.passwordParameter("loginPassword").and().rememberMe().rememberMeParameter("setRemember")
+				.tokenRepository(tokenRepository).tokenValiditySeconds(600).and().csrf().and().exceptionHandling()
+				.accessDeniedPage("/access-denied");
 	}
-	
+
 	@Autowired
 	public void configureGlobalSecurity(AuthenticationManagerBuilder authen) throws Exception {
 		authen.userDetailsService(userDetailsService);
@@ -55,5 +59,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		authenProvider.setUserDetailsService(userDetailsService);
 		authenProvider.setPasswordEncoder(passwordEncoder());
 		return authenProvider;
+	}
+
+	@Bean
+	public AuthenticationTrustResolver getAuthenticationTrustResolver() {
+		return new AuthenticationTrustResolverImpl();
+	}
+
+	@Bean
+	public PersistentTokenBasedRememberMeServices getPersistentTokenBasedRememberMeServices() {
+		PersistentTokenBasedRememberMeServices tokenBaseRememberService = new PersistentTokenBasedRememberMeServices("setRemember",
+				userDetailsService, tokenRepository);
+		return tokenBaseRememberService;
 	}
 }

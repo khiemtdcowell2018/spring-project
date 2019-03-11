@@ -29,16 +29,22 @@ public class DatabaseAuthenticationService implements UserDetailsService {
 	@Override
 	@Transactional(readOnly = false)
 	public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
-		MstUser mstUser = userService.getByLoginId(loginId);
-
-		if (mstUser == null) {
-			logger.info("User with loginId = " + loginId + " not found");
-			throw new UsernameNotFoundException("Login id not found");
+		MstUser databaseUser = userService.getByLoginId(loginId);
+		if (databaseUser == null) {
+			String errMessage = "Login user with user id [" + loginId + "] not found";
+			logger.error(errMessage);
+			throw new UsernameNotFoundException(errMessage);
 		} else {
-			logger.info(mstUser.toString());
-			User user = new User(mstUser.getLoginId(), mstUser.getLoginPassword(), true, true, true, true,
-					getGrantedAuthorities(mstUser));
-			return user;
+			String username = databaseUser.getLoginId();
+			String password = databaseUser.getLoginPassword();
+			boolean enableAccount = true;
+			boolean accountNotExpired = true;
+			boolean credentialsNotExpired = true;
+			boolean accountNotLogged = true;
+
+			User springUser = new User(username, password, enableAccount, accountNotExpired, credentialsNotExpired,
+					accountNotLogged, getGrantedAuthorities(databaseUser));
+			return springUser;
 		}
 	}
 
