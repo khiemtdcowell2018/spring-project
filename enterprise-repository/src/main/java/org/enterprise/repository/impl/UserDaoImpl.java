@@ -97,4 +97,12 @@ public class UserDaoImpl extends AbstractDao<Integer, MstUser> implements UserDa
 		}
 	}
 
+	public MstUser findByEmail(String emailAddress) {
+		CriteriaBuilder cBuilder = this.getSession().getCriteriaBuilder();
+		CriteriaQuery<MstUser> cQuery = cBuilder.createQuery(MstUser.class);
+		Root<MstUser> root = cQuery.from(MstUser.class);
+		cQuery.select(root).where(cBuilder.equal(root.get("mailAddress"), emailAddress));
+		return this.getSession().createQuery(cQuery).uniqueResult();
+	}
+
 }

@@ -40,10 +40,27 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/", "/home").access("hasRole('SHOUKAISHA') or hasRole('KANRISHA')").and()
-				.formLogin().loginPage("/login").loginProcessingUrl("/login").usernameParameter("loginId")
-				.passwordParameter("loginPassword").and().rememberMe().rememberMeParameter("setRemember")
-				.tokenRepository(tokenRepository).tokenValiditySeconds(600).and().csrf().and().exceptionHandling()
+		http.authorizeRequests()
+				.antMatchers("/", "/home", "/home/")
+					.access("hasRole('SHOUKAISHA') or hasRole('KANRISHA')")
+				.antMatchers("/account-management","/account-management/")
+					.access("hasRole('SHOUKAISHA') or hasRole('KANRISHA')")
+				.antMatchers("/add-new-*", "/add-new-*")
+					.access("hasRole('KANRISHA')")
+			.and()
+				.formLogin()
+				.loginPage("/login")
+				.loginProcessingUrl("/login")
+				.usernameParameter("loginId")
+				.passwordParameter("loginPassword")
+			.and().rememberMe()
+				.rememberMeParameter("setRemember")
+				.tokenRepository(tokenRepository)
+				.tokenValiditySeconds(600)
+			.and()
+				.csrf()
+			.and()
+				.exceptionHandling()
 				.accessDeniedPage("/access-denied");
 	}
 

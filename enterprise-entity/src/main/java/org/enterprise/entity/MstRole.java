@@ -36,6 +36,25 @@ public class MstRole implements Serializable {
 	@Column(name = "ROLE_TYPE", length = 25, unique = true, nullable = false)
 	private String roleType = RoleType.SHOUKAISHA.getRoleType();
 
+	/**
+	 * Role Type Name (Vietnam)
+	 */
+	@Column(name = "ROLE_TYPE_NAME_VI_VN", length = 20)
+	private String roleTypeNameViVn = RoleType.SHOUKAISHA.getRoleTypeNameViVn();
+	
+	/**
+	 * Role Type Name (English)
+	 */
+	@Column(name = "ROLE_TYPE_NAME_EN_US", length = 20)
+	private String roleTypeNameEnUs = RoleType.SHOUKAISHA.getRoleTypeNameEnUs();
+	
+	/**
+	 * Role Type Name (Japan)
+	 */
+	@Column(name = "ROLE_TYPE_NAME_JA_JP", length = 20)
+	private String roleTypeNameJaJp = RoleType.SHOUKAISHA.getRoleTypeNameJaJp();
+	
+
 	public Integer getRoleId() {
 		return roleId;
 	}
@@ -50,6 +69,30 @@ public class MstRole implements Serializable {
 
 	public void setRoleType(String roleType) {
 		this.roleType = roleType;
+	}
+
+	public String getRoleTypeNameViVn() {
+		return roleTypeNameViVn;
+	}
+
+	public void setRoleTypeNameViVn(String roleTypeNameViVn) {
+		this.roleTypeNameViVn = roleTypeNameViVn;
+	}
+	
+	public String getRoleTypeNameEnUs() {
+		return roleTypeNameEnUs;
+	}
+
+	public void setRoleTypeNameEnUs(String roleTypeNameEnUs) {
+		this.roleTypeNameEnUs = roleTypeNameEnUs;
+	}
+	
+	public String getRoleTypeNameJaJp() {
+		return roleTypeNameJaJp;
+	}
+
+	public void setRoleTypeNameJaJp(String roleTypeNameJaJp) {
+		this.roleTypeNameJaJp = roleTypeNameJaJp;
 	}
 
 	@Override

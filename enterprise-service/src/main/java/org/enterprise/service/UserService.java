@@ -3,6 +3,7 @@ package org.enterprise.service;
 import java.util.List;
 
 import org.enterprise.entity.MstUser;
+
 /**
  * 
  * @author KHIEMTD
@@ -24,4 +25,12 @@ public interface UserService {
 	void updateUser(MstUser mstUser);
 
 	void removeUser(String loginId);
+
+	MstUser getByMailAddress(String mailAddress);
+
+	boolean isConfirmPasswordMatched(String password, String confirmPassword);
+
+	boolean isDuplicatedLoginId(String loginId);
+
+	boolean isDuplocatedMailAddress(String mailAddress);
 }

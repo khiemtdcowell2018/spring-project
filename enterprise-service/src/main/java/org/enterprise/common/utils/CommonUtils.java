@@ -22,7 +22,7 @@ public class CommonUtils {
 		Integer[] result = new Integer[2];
 		Integer firstResult = 0;
 		Integer maxResult = pageSize;
-		if (pageIndex < 1) {
+		if (pageIndex <= 1) {
 			firstResult = 0;
 			if (totalRecord < pageSize) {
 				maxResult = totalRecord;

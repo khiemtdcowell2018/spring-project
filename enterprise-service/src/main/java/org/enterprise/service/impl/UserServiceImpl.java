@@ -11,6 +11,7 @@ import org.enterprise.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
  * 
@@ -81,4 +82,27 @@ public class UserServiceImpl implements UserService {
 		userDao.deleteByLoginId(loginId);
 	}
 
+	@Override
+	public MstUser getByMailAddress(String mailAddress) {
+		return userDao.findByEmail(mailAddress);
+	}
+
+	@Override
+	public boolean isConfirmPasswordMatched(String password, String confirmPassword) {
+		if (StringUtils.isEmpty(password) || StringUtils.isEmpty(confirmPassword)) {
+			return false;
+		} else {
+			return password.trim().equals(confirmPassword.trim());
+		}
+	}
+
+	@Override
+	public boolean isDuplicatedLoginId(String loginId) {
+		return this.getByLoginId(loginId.trim()) != null;
+	}
+
+	@Override
+	public boolean isDuplocatedMailAddress(String mailAddress) {
+		return this.getByMailAddress(mailAddress.trim()) != null;
+	}
 }

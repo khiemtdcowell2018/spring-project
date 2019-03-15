@@ -32,6 +32,6 @@ public class LogoutController {
 			tokenBaseRememberService.logout(request, response, onLoggedStateOject);
 			SecurityContextHolder.getContext().setAuthentication(null);
 		}
-		return "redirect:/";
+		return "redirect:/login?logout";
 	}
 }

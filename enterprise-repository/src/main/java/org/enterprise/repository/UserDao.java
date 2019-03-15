@@ -25,4 +25,6 @@ public interface UserDao {
 	void update(MstUser mstUser);
 
 	void deleteByLoginId(String loginId);
+
+	MstUser findByEmail(String emailAddress);
 }

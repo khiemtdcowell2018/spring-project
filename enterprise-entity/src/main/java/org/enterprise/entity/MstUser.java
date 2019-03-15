@@ -14,6 +14,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 /**
  * 
@@ -34,30 +36,47 @@ public class MstUser implements Serializable {
 	@Column(name = "USER_ID")
 	private Integer userId;
 
+	@NotEmpty(message = "NotEmpty.mstUser.loginId")
+	@Size(min = 5, max = 50, message="Size.mstUser.loginId")
 	@Column(name = "LOGIN_ID", length = 50, unique = true, nullable = false)
 	private String loginId;
 
+	@NotEmpty(message = "NotEmpty.mstUser.loginPassword")
+	@Size(min = 5, max = 100, message="Size.mstUser.loginPassword")
 	@Column(name = "LOGIN_PASSWORD", length = 100, nullable = false)
 	private String loginPassword;
 
+	@NotEmpty(message = "NotEmpty.mstUser.nameMei")
+	@Size(min = 1, max = 50, message="Size.mstUser.nameMei")
 	@Column(name = "NAME_MEI", length = 50, nullable = false)
 	private String nameMei;
 
+	@NotEmpty(message = "NotEmpty.mstUser.nameSei")
+	@Size(min = 1, max = 50, message="Size.mstUser.nameSei")
 	@Column(name = "NAME_SEI", length = 50, nullable = false)
 	private String nameSei;
 
+	@NotEmpty(message = "NotEmpty.mstUser.mailAddress")
+	@Size(min = 1, max = 50, message="Size.mstUser.mailAddress")
 	@Column(name = "MAIL_ADDRESS", length = 50, nullable = false)
 	private String mailAddress;
 
+	@NotEmpty(message = "NotEmpty.mstUser.phoneNumber")
+	@Size(min = 1, max = 50, message="Size.mstUser.phoneNumber")
 	@Column(name = "PHONE_NUMBER", length = 20, unique = true, nullable = false)
 	private String phoneNumber;
 
+	@NotEmpty(message = "NotEmpty.mstUser.postNumber")
+	@Size(min = 5, max = 10, message="Size.mstUser.postNumber")
 	@Column(name = "POST_NUMBER", length = 10, nullable = false)
 	private String postNumber;
 
+	@NotEmpty(message = "NotEmpty.mstUser.homeAddress")
+	@Size(min = 10, max = 100, message="Size.mstUser.homeAddress")
 	@Column(name = "HOME_ADDRESS", length = 100, nullable = false)
 	private String homeAddress;
 
+	@NotEmpty(message = "NotEmpty.mstUser.roles")
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "KENRI", joinColumns = { @JoinColumn(name = "USER_ID") }, inverseJoinColumns = {
 			@JoinColumn(name = "ROLE_ID") })
