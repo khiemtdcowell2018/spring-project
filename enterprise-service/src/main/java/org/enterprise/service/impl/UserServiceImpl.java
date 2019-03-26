@@ -102,7 +102,19 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean isDuplocatedMailAddress(String mailAddress) {
+	public boolean isDuplicatedMailAddress(String mailAddress) {
 		return this.getByMailAddress(mailAddress.trim()) != null;
+	}
+
+	@Override
+	public boolean isDuplicatedMailAddressWhenUpdate(String currentMailAddress, String newMailAddress) {
+		if (!currentMailAddress.trim().equals(newMailAddress.trim())) {
+			if (this.getByMailAddress(newMailAddress.trim()) != null) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return false;
 	}
 }

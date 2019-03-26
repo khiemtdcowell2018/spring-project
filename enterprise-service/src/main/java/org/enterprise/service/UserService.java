@@ -32,5 +32,7 @@ public interface UserService {
 
 	boolean isDuplicatedLoginId(String loginId);
 
-	boolean isDuplocatedMailAddress(String mailAddress);
+	boolean isDuplicatedMailAddress(String mailAddress);
+	
+	boolean isDuplicatedMailAddressWhenUpdate(String currentMailAddress, String newMailAddress);
 }

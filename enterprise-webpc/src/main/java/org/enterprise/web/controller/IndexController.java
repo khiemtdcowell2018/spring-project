@@ -27,4 +27,9 @@ public class IndexController {
 		}
 		return "home";
 	}
+	
+	@RequestMapping(value = {"/404", "/404/"}, method = RequestMethod.GET)
+	public String notFoundPage() {
+		return "/404";
+	}
 }

@@ -24,7 +24,7 @@ public class UserDaoImpl extends AbstractDao<Integer, MstUser> implements UserDa
 		CriteriaBuilder cBuilder = this.getSession().getCriteriaBuilder();
 		CriteriaQuery<MstUser> cQuery = cBuilder.createQuery(MstUser.class);
 		Root<MstUser> root = cQuery.from(MstUser.class);
-		cQuery.select(root).orderBy(cBuilder.asc(root.get("userId")));
+		cQuery.select(root).orderBy(cBuilder.desc(root.get("userId")));
 		List<MstUser> result = this.getSession().createQuery(cQuery).getResultList();
 		if (isGetRoles) {
 			for (MstUser mstUser : result) {
@@ -38,7 +38,7 @@ public class UserDaoImpl extends AbstractDao<Integer, MstUser> implements UserDa
 		CriteriaBuilder cBuilder = this.getSession().getCriteriaBuilder();
 		CriteriaQuery<MstUser> cQuery = cBuilder.createQuery(MstUser.class);
 		Root<MstUser> root = cQuery.from(MstUser.class);
-		cQuery.select(root).orderBy(cBuilder.asc(root.get("userId")));
+		cQuery.select(root).orderBy(cBuilder.desc(root.get("userId")));
 
 		TypedQuery<MstUser> tQuery = this.getSession().createQuery(cQuery);
 		tQuery.setFirstResult(firstResult);

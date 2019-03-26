@@ -8,8 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
+import org.enterprise.common.utils.EnterpriseMail;
 import org.enterprise.entity.MstRole;
 import org.enterprise.entity.MstUser;
+import org.enterprise.service.EnterpriseMailService;
 import org.enterprise.service.RoleService;
 import org.enterprise.service.UserService;
 import org.enterprise.web.config.EnterpriseConfiguration;
@@ -46,6 +48,9 @@ public class AccountController {
 
 	@Autowired
 	EnterpriseConfiguration enterpriseConfiguration;
+	
+	@Autowired
+	EnterpriseMailService enterpriseMailService;
 
 	/**
 	 * Get default fist 10 records of MstUser
@@ -55,8 +60,6 @@ public class AccountController {
 	 */
 	@RequestMapping(value = { "/", "" }, method = RequestMethod.GET)
 	public String goListAccountPage(ModelMap model) {
-		logger.info("pager:{limit:" + enterpriseConfiguration.getPagesLimit() + ", pagerSizeLimit: "
-				+ enterpriseConfiguration.getPagesInPagerLimit() + "}");
 		// Get list account
 		List<MstUser> users = userService.getAllUsersWithPager(true, 1, enterpriseConfiguration.getPagesLimit());
 		model.addAttribute("totalCount", userService.getTotalCount());
@@ -137,7 +140,35 @@ public class AccountController {
 			errors.add(duplicatedLoginId);
 		}
 		// Check duplicated by mail address
-		if (userService.isDuplocatedMailAddress(mstUser.getMailAddress())) {
+		if (userService.isDuplicatedMailAddress(mstUser.getMailAddress())) {
+			// Add error message to view page
+			FieldError duplicatedEmail = new FieldError("mstUser", "mailAddress",
+					messageSource.getMessage("Customized.mstUser.mailAddress",
+							new String[] { mstUser.getMailAddress().trim() }, LocaleContextHolder.getLocale()));
+			errors.add(duplicatedEmail);
+		}
+		return errors;
+	}
+
+	/**
+	 * Data validation from database
+	 * 
+	 * @param mstUser ModelAttribute
+	 * @param request HttpServletRequest
+	 * @return List<FieldError>
+	 */
+	private List<FieldError> userUpdateValidationFromServer(MstUser mstUser, HttpServletRequest request, String currentLoginId) {
+		List<FieldError> errors = new ArrayList<FieldError>();
+		// Illegal when modify login id
+		if (!currentLoginId.equals(mstUser.getLoginId())) {
+			// Add error message to view page
+			FieldError illegalModifyLoginId = new FieldError("mstUser", "loginPassword",
+					messageSource.getMessage("Customized.mstUser.loginId.illegal.modify", new String[] {},
+							LocaleContextHolder.getLocale()));
+			errors.add(illegalModifyLoginId);
+		}
+		// Check duplicated by mail address
+		if (userService.isDuplicatedMailAddressWhenUpdate(userService.getByLoginId(currentLoginId).getMailAddress(), mstUser.getMailAddress())) {
 			// Add error message to view page
 			FieldError duplicatedEmail = new FieldError("mstUser", "mailAddress",
 					messageSource.getMessage("Customized.mstUser.mailAddress",
@@ -177,6 +208,7 @@ public class AccountController {
 	public String doRegist(HttpServletRequest request, @Valid MstUser mstUser, BindingResult result, ModelMap model,
 			RedirectAttributes redirect) {
 		String action = request.getParameter("action");
+		String passwordNoneEncryptedForSendMail = mstUser.getLoginPassword();
 		logger.info("action:" + action);
 		boolean secondValidation = true;
 		if ("backToInput".equals(action)) {
@@ -204,12 +236,38 @@ public class AccountController {
 				userService.addNewUser(mstUser);
 				model.addAttribute("createdUser", mstUser);
 				// Send notification mail to user
-
+				EnterpriseMail mail = generateMailMessage(mstUser, passwordNoneEncryptedForSendMail);
+				try {
+					enterpriseMailService.sendMail(mail);
+				}catch (Exception e) {
+					e.printStackTrace();
+				}
 				return "/account/complete-created-new-user";
 			}
 		} else {
 			return "redirect:/";
 		}
+	}
+
+	/**
+	 * Generate mail message
+	 * @param mstUser
+	 * @return
+	 */
+	private EnterpriseMail generateMailMessage(MstUser mstUser, String passwordNoneEncryptedForSendMail) {
+		EnterpriseMail mail = new EnterpriseMail();
+		mail.setMailFrom(enterpriseConfiguration.getMailFrom());
+		mail.setMailTo(mstUser.getMailAddress());
+		mail.setMailSubject(messageSource.getMessage("mail.service.subject",new String[] {}, LocaleContextHolder.getLocale()));
+		StringBuffer sb = new StringBuffer();
+		sb.append(messageSource.getMessage("mail.service.simple.content.p1",new String[] {}, LocaleContextHolder.getLocale()));
+		sb.append(messageSource.getMessage("mail.service.simple.content.p2",new String[] {}, LocaleContextHolder.getLocale()));
+		sb.append(messageSource.getMessage("mail.service.simple.content.p3",new String[] {mstUser.getLoginId(), passwordNoneEncryptedForSendMail}, LocaleContextHolder.getLocale()));
+		sb.append(messageSource.getMessage("mail.service.simple.content.p4",new String[] {}, LocaleContextHolder.getLocale()));
+		sb.append(messageSource.getMessage("mail.service.simple.content.p5",new String[] {}, LocaleContextHolder.getLocale()));
+		sb.append(messageSource.getMessage("mail.service.simple.content.p6",new String[] {}, LocaleContextHolder.getLocale()));
+		mail.setMailContent(sb.toString());
+		return mail;
 	}
 
 	@RequestMapping(value = { "/detail/{loginId}", "/detail/{loginId}/" }, method = RequestMethod.GET)
@@ -221,6 +279,51 @@ public class AccountController {
 		} else {
 			return "/404";
 		}
+	}
+
+	@RequestMapping(value = {"/modify-user/{loginId}", "/modify-user/{loginId}/"}, method = RequestMethod.GET)
+	public String updateUserPage(ModelMap model, @PathVariable String loginId, HttpServletRequest request) {
+		// Get user information by login id
+		MstUser mstUser = userService.getByLoginId(loginId);
+		if (mstUser == null) {
+			return "/404";
+		}
+		// Get model from request context when back from confirm screen
+		Map<String, ?> flashMap = RequestContextUtils.getInputFlashMap(request);
+		try {
+			mstUser = (MstUser) flashMap.get("redirectMstUser");
+		} catch (Exception e) {
+			model.addAttribute("mstUser", mstUser);
+		}
+		
+		return "/account/update-user-input";
+	}
+
+	@RequestMapping(value = {"/modify-user/{loginId}", "/modify-user/{loginId}/"}, method = RequestMethod.POST)
+	public String doUpdateUser(ModelMap model, @PathVariable String loginId, @Valid MstUser mstUser, BindingResult result, HttpServletRequest request) {
+		boolean firstValidation = true;
+		if (result.hasErrors()) {
+			model.addAttribute("mstUser", mstUser);
+			model.addAttribute("hasError", true);
+			model.addAttribute("errors", result.getAllErrors());
+			return "/account/update-user-input";
+		} else {
+			List<FieldError> constraintDataErrors = userUpdateValidationFromServer(mstUser, request, loginId);
+			firstValidation = constraintDataErrors.size() == 0;
+			for (FieldError fieldError : constraintDataErrors) {
+				result.addError((FieldError) fieldError);
+			}
+		}
+		if (!firstValidation) {
+			model.addAttribute("mstUser", mstUser);
+			model.addAttribute("hasError", true);
+			model.addAttribute("errors", result.getAllErrors());
+			return "/account/add-new-user";
+		} else {
+			model.addAttribute("mstUser", mstUser);
+			return "/account/confirm-new-user";
+		}
+		
 	}
 
 	@ModelAttribute("kenries")
